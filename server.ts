@@ -15,7 +15,10 @@ import {
 } from './server/auth.ts';
 
 const PORT = Number(process.env.PORT) || 3000;
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const DIST_DIR = path.resolve(process.cwd(), 'dist');
+const IS_PRODUCTION =
+  process.env.NODE_ENV === 'production' ||
+  (process.env.npm_lifecycle_event !== 'dev' && fs.existsSync(path.join(DIST_DIR, 'index.html')));
 
 const ADMIN_INVITE_CODE = process.env.ADMIN_INVITE_CODE || 'MERIDIAN-ADMIN-2026';
 const DEMO_MODE_ENABLED = process.env.DISABLE_DEMO_LOGIN !== 'true';
