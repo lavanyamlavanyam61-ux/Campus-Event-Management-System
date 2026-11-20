@@ -118,7 +118,7 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
       {/* Left Institutional Showcase Panel */}
       <div className="lg:w-7/12 relative bg-slate-900 text-white flex flex-col justify-between p-8 sm:p-12 lg:p-16 overflow-hidden">
         <img
-          src="/src/assets/images/event_symposium_hall_1795149841948.jpg"
+          src="./src/assets/images/event_symposium_hall_1795149841948.jpg"
           alt="University Lecture Hall during an academic symposium"
           referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover opacity-35"

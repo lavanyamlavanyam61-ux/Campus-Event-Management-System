@@ -146,18 +146,18 @@ export const EVENT_CATEGORIES = [
 export const EVENT_IMAGE_PRESETS = [
   {
     label: 'Auditorium & Symposium',
-    url: '/src/assets/images/event_symposium_hall_1795149841948.jpg',
+    url: './src/assets/images/event_symposium_hall_1795149841948.jpg',
   },
   {
     label: 'Engineering & Robotics Lab',
-    url: '/src/assets/images/event_hackathon_lab_1795149842473.jpg',
+    url: './src/assets/images/event_hackathon_lab_1795149842473.jpg',
   },
   {
     label: 'Campus Arts Pavilion',
-    url: '/src/assets/images/event_arts_gallery_1795149842832.jpg',
+    url: './src/assets/images/event_arts_gallery_1795149842832.jpg',
   },
   {
     label: 'Student Union Atrium',
-    url: '/src/assets/images/event_career_summit_1795149843021.jpg',
+    url: './src/assets/images/event_career_summit_1795149843021.jpg',
   },
 ] as const;

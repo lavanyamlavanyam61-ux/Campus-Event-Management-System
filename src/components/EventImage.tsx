@@ -8,10 +8,19 @@ interface EventImageProps {
   className?: string;
 }
 
+export function normalizeAssetPath(src: string): string {
+  if (!src) return src;
+  if (src.startsWith('/src/assets/')) {
+    return `.${src}`;
+  }
+  return src;
+}
+
 export function EventImage({ src, alt, category, className = '' }: EventImageProps) {
   const [hasError, setHasError] = useState(false);
+  const resolvedSrc = normalizeAssetPath(src);
 
-  if (!src || hasError) {
+  if (!resolvedSrc || hasError) {
     return (
       <div
         className={`flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 text-slate-500 border-b border-slate-200 ${className}`}
@@ -28,7 +37,7 @@ export function EventImage({ src, alt, category, className = '' }: EventImagePro
 
   return (
     <img
-      src={src}
+      src={resolvedSrc}
       alt={alt}
       referrerPolicy="no-referrer"
       onError={() => setHasError(true)}

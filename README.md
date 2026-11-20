@@ -123,7 +123,16 @@ Before sharing with real users, set these environment variables in your Secrets 
 - `ADMIN_INVITE_CODE`: Secret code required when creating new Administrator accounts.
 - `DISABLE_DEMO_LOGIN`: Set to `"true"` to hide the one-click demo buttons on the sign-in page.
 
-### 2. Self-Host Publicly with Docker (Render, Railway, Fly.io, Cloud Run, or VPS)
+### 2. Deploy Static Frontend to GitHub Pages
+Because GitHub Pages serves static files from a repository subpath (`https://<user>.github.io/<repo>/`) and does not run Node.js, deploying the raw source branch directly will show a blank white page. Instead, use the included `.github/workflows/deploy.yml` workflow:
+
+1. Push your repository to GitHub on the `main` branch.
+2. In your GitHub repository, go to **Settings → Pages**.
+3. Under **Build and deployment → Source**, select **GitHub Actions**.
+4. GitHub Actions will automatically build `dist/` (with relative `./` asset paths) and publish your site.
+5. On GitHub Pages (where no Express server is running), the app automatically activates its browser-persistent `localStorage` fallback so login, registration, event management, and rosters still work interactively.
+
+### 3. Self-Host Full-Stack with Docker (Render, Railway, Fly.io, Cloud Run, or VPS)
 1. Build and push the container or connect your repository using the included `Dockerfile`.
 2. Mount a persistent disk/volume at `/app/data` so the SQLite database (`campus_events.db`) persists across restarts.
 3. Configure production environment variables:
