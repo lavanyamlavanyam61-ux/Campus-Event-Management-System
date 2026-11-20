@@ -1,0 +1,19 @@
+services:
+  campus-events:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meridian-campus-events
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_PATH=/app/data/campus_events.db
+      - JWT_SECRET=${JWT_SECRET:-change-this-jwt-secret-in-production}
+    volumes:
+      - campus_events_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  campus_events_data:
