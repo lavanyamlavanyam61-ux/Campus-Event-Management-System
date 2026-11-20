@@ -59,6 +59,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
+  async getConfig(): Promise<{ demoMode: boolean }> {
+    return request('/api/config');
+  },
+
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
     return request('/api/auth/login', {
       method: 'POST',
@@ -73,6 +77,7 @@ export const api = {
     role: UserRole;
     student_id: string;
     department: string;
+    admin_code?: string;
   }): Promise<{ token: string; user: User }> {
     return request('/api/auth/register', {
       method: 'POST',

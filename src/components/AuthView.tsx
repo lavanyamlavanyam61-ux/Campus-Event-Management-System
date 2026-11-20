@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { ArrowRight, Eye, EyeOff, Lock, Mail, User as UserIcon, Building2, IdCard } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, User as UserIcon, Building2, IdCard, ShieldCheck } from 'lucide-react';
 import { api } from '../api/client';
 import type { User, UserRole } from '../types';
 
@@ -17,9 +17,26 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
   const [role, setRole] = useState<UserRole>('student');
   const [studentId, setStudentId] = useState('');
   const [department, setDepartment] = useState('Computer Science & Engineering');
+  const [adminCode, setAdminCode] = useState('');
+  const [demoMode, setDemoMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getConfig()
+      .then((cfg) => {
+        if (active) setDemoMode(cfg.demoMode);
+      })
+      .catch(() => {
+        // Default to demoMode true if config request fails
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const validateForm = (): string | null => {
     const cleanEmail = email.trim();
@@ -38,6 +55,9 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
       }
       if (department.trim().length < 2) {
         return 'Please specify your academic department or office.';
+      }
+      if (role === 'admin' && !adminCode.trim()) {
+        return 'Please enter the Administrator Invite Code.';
       }
     }
     return null;
@@ -66,6 +86,7 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
           role,
           student_id: studentId.trim(),
           department: department.trim(),
+          admin_code: role === 'admin' ? adminCode.trim() : undefined,
         });
         onAuthenticated(res.token, res.user);
       }
@@ -286,6 +307,26 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
                     />
                   </div>
                 </div>
+
+                {role === 'admin' && (
+                  <div>
+                    <label htmlFor="auth-admin-code" className="block text-sm font-medium text-slate-700 mb-1.5">
+                      Administrator Invite Code
+                    </label>
+                    <div className="relative">
+                      <ShieldCheck className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        id="auth-admin-code"
+                        type="password"
+                        value={adminCode}
+                        onChange={(e) => setAdminCode(e.target.value)}
+                        placeholder="Enter university staff invite code"
+                        required
+                        className="w-full pl-9 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600"
+                      />
+                    </div>
+                  </div>
+                )}
               </>
             )}
 
@@ -367,31 +408,33 @@ export function AuthView({ onAuthenticated, onBrowseGuest }: AuthViewProps) {
           </form>
 
           {/* Quick Demo Access */}
-          <div className="mt-8 pt-6 border-t border-slate-200">
-            <p className="text-xs font-medium text-slate-500 mb-3">
-              Quick Demo Access (Seeded Accounts)
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleDemoSignIn('student@university.edu', 'Student123!')}
-                className="text-left px-3.5 py-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <div className="text-xs font-semibold text-slate-900">Student Demo</div>
-                <div className="text-xs text-slate-500 truncate mt-0.5">student@university.edu</div>
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleDemoSignIn('admin@university.edu', 'Admin123!')}
-                className="text-left px-3.5 py-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <div className="text-xs font-semibold text-slate-900">Admin Demo</div>
-                <div className="text-xs text-slate-500 truncate mt-0.5">admin@university.edu</div>
-              </button>
+          {demoMode && (
+            <div className="mt-8 pt-6 border-t border-slate-200">
+              <p className="text-xs font-medium text-slate-500 mb-3">
+                Quick Demo Access (Seeded Accounts)
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoSignIn('student@university.edu', 'Student123!')}
+                  className="text-left px-3.5 py-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <div className="text-xs font-semibold text-slate-900">Student Demo</div>
+                  <div className="text-xs text-slate-500 truncate mt-0.5">student@university.edu</div>
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoSignIn('admin@university.edu', 'Admin123!')}
+                  className="text-left px-3.5 py-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <div className="text-xs font-semibold text-slate-900">Admin Demo</div>
+                  <div className="text-xs text-slate-500 truncate mt-0.5">admin@university.edu</div>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

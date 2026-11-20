@@ -111,3 +111,29 @@ docker run -d \
 ```
 
 The app will be available at [http://localhost:3000](http://localhost:3000) with health checks served at `GET /api/health`.
+
+---
+
+## Publishing Publicly
+
+### 1. Publish Directly via Google AI Studio
+Click **Share** / **Deploy** in the top-right bar of AI Studio to publish the app to your public Cloud Run URL.
+Before sharing with real users, set these environment variables in your Secrets / deployment settings:
+- `JWT_SECRET`: Strong random secret string.
+- `ADMIN_INVITE_CODE`: Secret code required when creating new Administrator accounts.
+- `DISABLE_DEMO_LOGIN`: Set to `"true"` to hide the one-click demo buttons on the sign-in page.
+
+### 2. Self-Host Publicly with Docker (Render, Railway, Fly.io, Cloud Run, or VPS)
+1. Build and push the container or connect your repository using the included `Dockerfile`.
+2. Mount a persistent disk/volume at `/app/data` so the SQLite database (`campus_events.db`) persists across restarts.
+3. Configure production environment variables:
+   ```env
+   NODE_ENV=production
+   PORT=3000
+   DATABASE_PATH=/app/data/campus_events.db
+   JWT_SECRET=your-long-random-secret
+   ADMIN_INVITE_CODE=your-staff-invite-code
+   DISABLE_DEMO_LOGIN=true
+   ```
+4. Expose port `3000` behind HTTPS (automatic on Cloud Run, Render, Railway, or via Caddy/Nginx on a VPS).
+

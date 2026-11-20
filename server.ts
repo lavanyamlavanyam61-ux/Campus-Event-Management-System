@@ -17,9 +17,18 @@ import {
 const PORT = Number(process.env.PORT) || 3000;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+const ADMIN_INVITE_CODE = process.env.ADMIN_INVITE_CODE || 'MERIDIAN-ADMIN-2026';
+const DEMO_MODE_ENABLED = process.env.DISABLE_DEMO_LOGIN !== 'true';
+
 initDb();
 
 const app = express();
+app.set('trust proxy', 1);
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 app.use(express.json({ limit: '2mb' }));
 
 function generateTicketCode(eventId: number): string {
@@ -64,9 +73,14 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Public client configuration
+app.get('/api/config', (_req, res) => {
+  res.json({ demoMode: DEMO_MODE_ENABLED });
+});
+
 // Auth: Register
 app.post('/api/auth/register', (req, res) => {
-  const { name, email, password, role, student_id, department } = req.body || {};
+  const { name, email, password, role, student_id, department, admin_code } = req.body || {};
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     res.status(400).json({ error: 'Full name must be at least 2 characters.' });
@@ -85,6 +99,15 @@ app.post('/api/auth/register', (req, res) => {
   }
 
   const assignedRole: 'student' | 'admin' = role === 'admin' ? 'admin' : 'student';
+  if (assignedRole === 'admin') {
+    const providedCode = typeof admin_code === 'string' ? admin_code.trim() : '';
+    if (!providedCode || providedCode !== ADMIN_INVITE_CODE) {
+      res.status(403).json({
+        error: 'A valid Administrator Invite Code is required to register an admin account.',
+      });
+      return;
+    }
+  }
   const cleanDept =
     typeof department === 'string' && department.trim().length >= 2
       ? department.trim()
