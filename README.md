@@ -124,13 +124,19 @@ Before sharing with real users, set these environment variables in your Secrets 
 - `DISABLE_DEMO_LOGIN`: Set to `"true"` to hide the one-click demo buttons on the sign-in page.
 
 ### 2. Deploy Static Frontend to GitHub Pages
-Because GitHub Pages serves static files from a repository subpath (`https://<user>.github.io/<repo>/`) and does not run Node.js, deploying the raw source branch directly will show a blank white page. Instead, use the included `.github/workflows/deploy.yml` workflow:
+Because GitHub Pages serves static files from a repository subpath (`https://<user>.github.io/<repo>/`) and does not run Node.js, deploying the raw root branch (`/(root)`) serves uncompiled `/src/main.tsx` and will fail to load. Use either of these two supported methods:
 
-1. Push your repository to GitHub on the `main` branch.
-2. In your GitHub repository, go to **Settings → Pages**.
-3. Under **Build and deployment → Source**, select **GitHub Actions**.
-4. GitHub Actions will automatically build `dist/` (with relative `./` asset paths) and publish your site.
-5. On GitHub Pages (where no Express server is running), the app automatically activates its browser-persistent `localStorage` fallback so login, registration, event management, and rosters still work interactively.
+- **Method A (Recommended — GitHub Actions):**
+  1. Push your repository to GitHub on `main` or `master`.
+  2. Open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**.
+  3. `.github/workflows/deploy.yml` automatically runs `npm install && npm run build` and deploys `./dist`.
+
+- **Method B (Deploy from a branch using `/docs`):**
+  1. Run `npm run build:pages` (or push the prebuilt `docs/` folder included in the repo).
+  2. Open **Settings → Pages → Build and deployment → Source** and select **Deploy from a branch**.
+  3. Set Branch to **`main`** and Folder to **`/docs`** (not `/ (root)`), then click **Save**.
+
+On GitHub Pages (where no Express server is running), the app automatically activates its browser-persistent `localStorage` fallback so login, registration, event management, and rosters still work interactively.
 
 ### 3. Self-Host Full-Stack with Docker (Render, Railway, Fly.io, Cloud Run, or VPS)
 1. Build and push the container or connect your repository using the included `Dockerfile`.
